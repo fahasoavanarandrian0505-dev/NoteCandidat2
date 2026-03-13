@@ -1,0 +1,30 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+
+# Build
+.gradle/
+build/
+
+# Logs
+*.log
+logs/
+
+# Local configuration
+*.properties.local
+
+# Node (if using frontend tools)
+node_modules/
+npm-debug.log
