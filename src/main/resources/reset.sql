@@ -1,0 +1,18 @@
+-- Nettoyage des données
+DELETE FROM note;
+DELETE FROM parametre;
+DELETE FROM candidat;
+DELETE FROM correcteur;
+DELETE FROM matiere;
+DELETE FROM operateur;
+DELETE FROM resolution;
+
+-- Reset AUTO_INCREMENT
+ALTER TABLE note AUTO_INCREMENT = 1;
+ALTER TABLE parametre AUTO_INCREMENT = 1;
+ALTER TABLE candidat AUTO_INCREMENT = 1;
+ALTER TABLE correcteur AUTO_INCREMENT = 1;
+ALTER TABLE matiere AUTO_INCREMENT = 1;
+ALTER TABLE operateur AUTO_INCREMENT = 1;
+ALTER TABLE resolution AUTO_INCREMENT = 1;
+
