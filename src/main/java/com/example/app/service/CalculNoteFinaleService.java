@@ -80,72 +80,95 @@ public class CalculNoteFinaleService {
             parametres = List.of(parametreParDefaut);
         }
         
-        // Déterminer la note finale en fonction des paramètres et conditions
-        Double noteFinale = determinerNoteFinaleAvecParametres(parametres, notes, ecartNotes);
+        // Trouver le meilleur paramètre selon les règles :
+        // 1. Condition vraie
+        // 2. Distance la plus proche de l'écart
+        // 3. En cas d'égalité de distance, différence la plus petite
+        Parametre meilleurParametre = trouverMeilleurParametre(parametres, ecartNotes);
         
-        // Trouver le paramètre qui a été utilisé (pour les informations de réponse)
-        Parametre parametreUtilise = trouverParametreUtilise(parametres, notes, ecartNotes);
-        
-        response.setParametreDifference(parametreUtilise.getDifference());
-        response.setOperateur(parametreUtilise.getOperateur().getNomOperateur());
-        response.setResolution(parametreUtilise.getResolution().getNom());
-        
-        // Vérifier si la condition du paramètre est remplie
-        Boolean conditionRemplie = appliquerOperateur(
-            ecartNotes, 
-            parametreUtilise.getDifference(), 
-            parametreUtilise.getOperateur().getNomOperateur()
-        );
-        
-        response.setConditionRemplie(conditionRemplie);
-        response.setNoteFinale(noteFinale);
-        
-        // Déterminer la méthode de calcul utilisée
+        Double noteFinale;
         String methodeCalcul;
-        if (conditionRemplie) {
-            methodeCalcul = determinerMethodeCalcul(parametreUtilise.getResolution().getNom(), true);
+        
+        if (meilleurParametre != null) {
+            // Un paramètre valide a été trouvé
+            noteFinale = calculerNoteSelonResolution(notes, meilleurParametre.getResolution().getNom());
+            
+            response.setParametreDifference(meilleurParametre.getDifference());
+            response.setOperateur(meilleurParametre.getOperateur().getNomOperateur());
+            response.setResolution(meilleurParametre.getResolution().getNom());
+            
+            Boolean conditionRemplie = appliquerOperateur(
+                ecartNotes, 
+                meilleurParametre.getDifference(), 
+                meilleurParametre.getOperateur().getNomOperateur()
+            );
+            
+            response.setConditionRemplie(conditionRemplie);
+            methodeCalcul = determinerMethodeCalcul(meilleurParametre.getResolution().getNom(), conditionRemplie);
         } else {
+            // Aucun paramètre valide trouvé → moyenne par défaut
+            noteFinale = notes.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+            
+            // Pour l'affichage, prendre le premier paramètre
+            Parametre premierParametre = parametres.get(0);
+            response.setParametreDifference(premierParametre.getDifference());
+            response.setOperateur(premierParametre.getOperateur().getNomOperateur());
+            response.setResolution(premierParametre.getResolution().getNom());
+            response.setConditionRemplie(false);
+            
             methodeCalcul = "Moyenne des notes (aucune condition remplie)";
         }
+        
+        response.setNoteFinale(noteFinale);
         response.setMethodeCalcul(methodeCalcul);
         
         return response;
     }
     
     /**
-     * Détermine la note finale en fonction des paramètres
-     * Si une condition est remplie → applique la résolution du paramètre
-     * Sinon → retourne la moyenne
+     * Trouve le meilleur paramètre selon les règles :
+     * 1. Condition vraie
+     * 2. Distance la plus proche de l'écart
+     * 3. En cas d'égalité de distance, différence la plus petite
      */
-    private Double determinerNoteFinaleAvecParametres(List<Parametre> parametres, List<Double> notes, Double ecartNotes) {
-        
-        // Chercher un paramètre dont la condition est remplie
+    private Parametre trouverMeilleurParametre(List<Parametre> parametres, Double ecartNotes) {
+        Parametre meilleur = null;
+        Double meilleureDistance = null;
+        Double plusPetiteDifference = null;
+
         for (Parametre p : parametres) {
-            if (appliquerOperateur(ecartNotes, p.getDifference(), p.getOperateur().getNomOperateur())) {
-                // Condition remplie → appliquer la résolution du paramètre
-                return calculerNoteSelonResolution(notes, p.getResolution().getNom());
+            // Règle 1 : la condition doit être vraie
+            if (!appliquerOperateur(ecartNotes, p.getDifference(), p.getOperateur().getNomOperateur())) {
+                continue;
+            }
+
+            double distance = Math.abs(p.getDifference() - ecartNotes);
+
+            if (meilleur == null) {
+                // Premier paramètre valide trouvé
+                meilleur = p;
+                meilleureDistance = distance;
+                plusPetiteDifference = p.getDifference();
+                continue;
+            }
+
+            // Règle 2 : comparer d'abord la distance
+            if (distance < meilleureDistance) {
+                // Distance plus petite → nouveau meilleur
+                meilleur = p;
+                meilleureDistance = distance;
+                plusPetiteDifference = p.getDifference();
+            } 
+            // Si distance égale, on prend la plus petite différence
+            else if (distance == meilleureDistance) {
+                if (p.getDifference() < plusPetiteDifference) {
+                    meilleur = p;
+                    plusPetiteDifference = p.getDifference();
+                }
             }
         }
-        
-        // Aucune condition remplie → retourner la MOYENNE
-        return notes.stream().mapToDouble(Double::doubleValue).average().orElse(0);
-    }
-    
-    /**
-     * Trouve le paramètre utilisé (pour l'affichage)
-     * Priorité au paramètre dont la condition est remplie, sinon le premier
-     */
-    private Parametre trouverParametreUtilise(List<Parametre> parametres, List<Double> notes, Double ecartNotes) {
-        
-        // Chercher d'abord un paramètre dont la condition est remplie
-        for (Parametre p : parametres) {
-            if (appliquerOperateur(ecartNotes, p.getDifference(), p.getOperateur().getNomOperateur())) {
-                return p;
-            }
-        }
-        
-        // Sinon retourner le premier
-        return parametres.get(0);
+
+        return meilleur; // peut être null si aucun paramètre valide
     }
     
     /**
