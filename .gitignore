@@ -24,6 +24,8 @@ logs/
 
 # Local configuration
 *.properties.local
+*.properties
+application.properties
 
 # Node (if using frontend tools)
 node_modules/
