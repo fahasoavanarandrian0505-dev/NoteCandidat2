@@ -30,21 +30,21 @@ INSERT INTO operateur (nom_operateur) VALUES
 -- 5. MATIERES
 INSERT INTO matiere (nom_matiere) VALUES 
 ('JAVA'),  -- 1
-('PHP');   -- 2
+('PHP'),
+('PYTHON');   -- 2
 
 -- ========================================
 -- NOTES
 -- ========================================
 INSERT INTO note (id_candidat, id_matiere, id_correcteur, note) VALUES 
 
--- JAVA - Candidat 1 : 3 notes
-(1, 1, 1, 15),
-(1, 1, 2, 10),
-(1, 1, 3, 12);  -- écart = |15-10| + |15-12| + |10-12| = 5 + 3 + 2 = 10
+-- JAVA - Candidat 1 
+(1, 3, 1, 14.5),
+(1, 3, 2, 13);
 
 
--- JAVA : deux paramètres
+-- JAVA :  paramètres
 INSERT INTO parametre (id_matiere, difference, id_operateur, id_resolution) VALUES 
-(1, 7, 4, 2),   
-(1, 12, 1, 1);   
+(3, 4, 3, 1),
+(3, 1, 3, 3);
 

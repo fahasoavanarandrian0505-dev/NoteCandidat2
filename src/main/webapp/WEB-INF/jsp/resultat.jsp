@@ -176,7 +176,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>✓ Résultat du Calcul</h1>
+        <h1>✓ ETU 3615 </h1>
 
         <% 
             NoteFinaleResponse resp = (NoteFinaleResponse) request.getAttribute("response");
