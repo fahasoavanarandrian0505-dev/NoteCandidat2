@@ -65,8 +65,14 @@ public class Devis {
     }
     
     public void recalculerMontantTotal() {
-        this.montantTotal = calculerMontantTotal();
+    if (detailsDevis != null && !detailsDevis.isEmpty()) {
+        this.montantTotal = detailsDevis.stream()
+            .map(DetailsDevis::getSousTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    } else {
+        this.montantTotal = BigDecimal.ZERO;
     }
+}
     
     public void accepter() { this.estAccepte = true; }
     public void refuser() { this.estAccepte = false; }
