@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/clients") 
+@RequestMapping("/clients")
 public class ClientController {
     
     @Autowired
@@ -34,9 +34,8 @@ public class ClientController {
     
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Integer id, Model model) {
-        Client client = clientService.getClientById(id)
-            .orElseThrow(() -> new RuntimeException("Client non trouvé"));
-        model.addAttribute("client", client);
+        model.addAttribute("client", clientService.getClientById(id)
+            .orElseThrow(() -> new RuntimeException("Client non trouvé")));
         return "clients/edit";
     }
     

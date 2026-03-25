@@ -61,7 +61,7 @@
     </c:if>
     
     <c:if test="${not empty clients}">
-         <table>
+        <table>
             <thead>
                 <tr>
                     <th>ID</th>

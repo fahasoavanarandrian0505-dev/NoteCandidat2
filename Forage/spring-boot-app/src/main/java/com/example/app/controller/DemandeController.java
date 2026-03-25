@@ -23,39 +23,17 @@ public class DemandeController {
     
     @GetMapping
     public String list(Model model) {
-        try {
-            List<Demande> demandes = demandeService.getAllDemandes();
-            List<DemandeDTO> demandeDTOs = new ArrayList<>();
-            
-            for (Demande demande : demandes) {
-                DemandeDTO dto = new DemandeDTO();
-                dto.setIdDemande(demande.getIdDemande());
-                
-                // Gestion du client
-                if (demande.getClient() != null) {
-                    dto.setClientNom(demande.getClient().getNom());
-                    dto.setClientId(demande.getClient().getIdClient());
-                } else {
-                    dto.setClientNom("Client inconnu");
-                    dto.setClientId(null);
-                }
-                
-                dto.setLieu(demande.getLieu());
-                dto.setDistrict(demande.getDistrict());
-                dto.setDateDemande(demande.getDateDemande());
-                
-                demandeDTOs.add(dto);
-            }
-            
-            model.addAttribute("demandes", demandeDTOs);
-            
-        } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des demandes: " + e.getMessage());
-            e.printStackTrace();
-            model.addAttribute("error", "Erreur lors du chargement des demandes");
-            model.addAttribute("demandes", new ArrayList<>());
+        List<DemandeDTO> demandeDTOs = new ArrayList<>();
+        for (Demande demande : demandeService.getAllDemandes()) {
+            DemandeDTO dto = new DemandeDTO();
+            dto.setIdDemande(demande.getIdDemande());
+            dto.setClientNom(demande.getClient() != null ? demande.getClient().getNom() : "Client inconnu");
+            dto.setLieu(demande.getLieu());
+            dto.setDistrict(demande.getDistrict());
+            dto.setDateDemande(demande.getDateDemande());
+            demandeDTOs.add(dto);
         }
-        
+        model.addAttribute("demandes", demandeDTOs);
         return "demandes/list";
     }
     
@@ -68,20 +46,14 @@ public class DemandeController {
     
     @PostMapping("/add")
     public String add(@ModelAttribute Demande demande, @RequestParam Integer clientId) {
-        try {
-            demandeService.createDemande(demande, clientId);
-            return "redirect:/demandes";
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Erreur lors de la création de la demande: " + e.getMessage());
-        }
+        demandeService.createDemande(demande, clientId);
+        return "redirect:/demandes";
     }
     
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Integer id, Model model) {
-        Demande demande = demandeService.getDemandeById(id)
-            .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
-        model.addAttribute("demande", demande);
+        model.addAttribute("demande", demandeService.getDemandeById(id)
+            .orElseThrow(() -> new RuntimeException("Demande non trouvée")));
         model.addAttribute("clients", clientService.getAllClients());
         return "demandes/edit";
     }

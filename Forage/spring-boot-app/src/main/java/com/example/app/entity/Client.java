@@ -7,8 +7,7 @@ import java.util.List;
 @Table(name = "client")
 public class Client {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_client")
     private Integer idClient;
     
@@ -29,7 +28,6 @@ public class Client {
         this.email = email;
     }
     
-    // Getters et Setters
     public Integer getIdClient() { return idClient; }
     public void setIdClient(Integer idClient) { this.idClient = idClient; }
     public String getNom() { return nom; }

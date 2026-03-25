@@ -34,7 +34,6 @@ public class Demande {
     
     public Demande() {}
     
-    // Getters et Setters
     public Integer getIdDemande() { return idDemande; }
     public void setIdDemande(Integer idDemande) { this.idDemande = idDemande; }
     public Client getClient() { return client; }

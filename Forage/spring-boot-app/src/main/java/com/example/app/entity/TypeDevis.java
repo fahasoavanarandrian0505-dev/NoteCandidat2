@@ -20,7 +20,6 @@ public class TypeDevis {
     
     public TypeDevis() {}
     
-    // Getters et Setters
     public Integer getIdTypeDevis() { return idTypeDevis; }
     public void setIdTypeDevis(Integer idTypeDevis) { this.idTypeDevis = idTypeDevis; }
     public String getLibelle() { return libelle; }

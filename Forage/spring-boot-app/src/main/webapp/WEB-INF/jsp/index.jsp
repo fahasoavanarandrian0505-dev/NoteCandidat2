@@ -3,10 +3,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion de Forage</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: white; }
+        body { font-family: Arial; margin: 20px; background: white; }
         .navbar {
             background: #f8f9fa;
             padding: 15px 20px;
@@ -44,12 +43,12 @@
         .card .btn {
             display: inline-block;
             padding: 8px 20px;
-            background-color: #007bff;
+            background: #007bff;
             color: white;
             text-decoration: none;
             border-radius: 4px;
         }
-        .card .btn:hover { background-color: #0056b3; }
+        .card .btn:hover { background: #0056b3; }
         @media (max-width: 768px) {
             .navbar { flex-direction: column; text-align: center; }
             .nav-links a { margin: 5px; display: inline-block; }
@@ -58,7 +57,7 @@
 </head>
 <body>
     <div class="navbar">
-        <h1>Gestion de Forage - ETU 3615</h1>
+        <h1>Forage - ETU 3615</h1>
         <div class="nav-links">
             <a href="/">Accueil</a>
             <a href="/clients">Clients</a>
@@ -71,13 +70,19 @@
         <div class="card">
             <div class="icon">👥</div>
             <h2>Clients</h2>
-            <a href="/clients" class="btn">VOIR</a>
+            <a href="/clients" class="btn">Gérer les clients</a>
         </div>
 
         <div class="card">
             <div class="icon">📋</div>
             <h2>Demandes</h2>
-            <a href="/demandes" class="btn">VOIR</a>
+            <a href="/demandes" class="btn">Gérer les demandes</a>
+        </div>
+
+        <div class="card">
+            <div class="icon">💰</div>
+            <h2>Devis</h2>
+            <a href="/devis" class="btn">Gérer les devis</a>
         </div>
     </div>
 </body>

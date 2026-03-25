@@ -1,16 +1,17 @@
 package com.example.app.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "devis")
 public class Devis {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_devis")  
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_devis")
     private Integer idDevis;
     
     @ManyToOne(fetch = FetchType.LAZY)
@@ -18,74 +19,56 @@ public class Devis {
     private Demande demande;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_typeDevis", nullable = false)
+    @JoinColumn(name = "id_typedevis", nullable = false)
     private TypeDevis typeDevis;
     
-    @Column(name = "date_devis")
     private LocalDate dateDevis;
-    
-    @Column(name = "montantTotal")
     private BigDecimal montantTotal;
-    
-    @Column(name = "est_accepte")
     private Boolean estAccepte = false;
+    
+    @OneToMany(mappedBy = "devis", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<DetailsDevis> detailsDevis = new ArrayList<>();
     
     public Devis() {}
     
-    public Devis(Integer idDevis, Demande demande, TypeDevis typeDevis, LocalDate dateDevis, BigDecimal montantTotal, Boolean estAccepte) {
-        this.idDevis = idDevis;
-        this.demande = demande;
-        this.typeDevis = typeDevis;
-        this.dateDevis = dateDevis;
-        this.montantTotal = montantTotal;
-        this.estAccepte = estAccepte;
+    public Integer getIdDevis() { return idDevis; }
+    public void setIdDevis(Integer idDevis) { this.idDevis = idDevis; }
+    public Demande getDemande() { return demande; }
+    public void setDemande(Demande demande) { this.demande = demande; }
+    public TypeDevis getTypeDevis() { return typeDevis; }
+    public void setTypeDevis(TypeDevis typeDevis) { this.typeDevis = typeDevis; }
+    public LocalDate getDateDevis() { return dateDevis; }
+    public void setDateDevis(LocalDate dateDevis) { this.dateDevis = dateDevis; }
+    public BigDecimal getMontantTotal() { return montantTotal; }
+    public void setMontantTotal(BigDecimal montantTotal) { this.montantTotal = montantTotal; }
+    public Boolean getEstAccepte() { return estAccepte; }
+    public void setEstAccepte(Boolean estAccepte) { this.estAccepte = estAccepte; }
+    public List<DetailsDevis> getDetailsDevis() { return detailsDevis; }
+    public void setDetailsDevis(List<DetailsDevis> detailsDevis) { this.detailsDevis = detailsDevis; }
+    
+    public void addDetailDevis(DetailsDevis detail) {
+        detailsDevis.add(detail);
+        detail.setDevis(this);
+        recalculerMontantTotal();
     }
     
-    public Integer getIdDevis() {
-        return idDevis;
+    public void removeDetailDevis(DetailsDevis detail) {
+        detailsDevis.remove(detail);
+        detail.setDevis(null);
+        recalculerMontantTotal();
     }
     
-    public void setIdDevis(Integer idDevis) {
-        this.idDevis = idDevis;
+    public BigDecimal calculerMontantTotal() {
+        return detailsDevis.stream()
+            .map(DetailsDevis::getSousTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
     
-    public Demande getDemande() {
-        return demande;
+    public void recalculerMontantTotal() {
+        this.montantTotal = calculerMontantTotal();
     }
     
-    public void setDemande(Demande demande) {
-        this.demande = demande;
-    }
-    
-    public TypeDevis getTypeDevis() {
-        return typeDevis;
-    }
-    
-    public void setTypeDevis(TypeDevis typeDevis) {
-        this.typeDevis = typeDevis;
-    }
-    
-    public LocalDate getDateDevis() {
-        return dateDevis;
-    }
-    
-    public void setDateDevis(LocalDate dateDevis) {
-        this.dateDevis = dateDevis;
-    }
-    
-    public BigDecimal getMontantTotal() {
-        return montantTotal;
-    }
-    
-    public void setMontantTotal(BigDecimal montantTotal) {
-        this.montantTotal = montantTotal;
-    }
-    
-    public Boolean getEstAccepte() {
-        return estAccepte;
-    }
-    
-    public void setEstAccepte(Boolean estAccepte) {
-        this.estAccepte = estAccepte;
-    }
+    public void accepter() { this.estAccepte = true; }
+    public void refuser() { this.estAccepte = false; }
+    public boolean isAccepte() { return estAccepte != null && estAccepte; }
 }

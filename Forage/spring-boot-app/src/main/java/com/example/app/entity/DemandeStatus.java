@@ -7,9 +7,8 @@ import java.time.LocalDateTime;
 @Table(name = "demandestatus")
 public class DemandeStatus {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_demandestatus")  // Note: nom en minuscules sans underscore
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_demandestatus")
     private Integer idDemandeStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -20,14 +19,12 @@ public class DemandeStatus {
     @JoinColumn(name = "id_status", nullable = false)
     private Status status;
 
-    @Column(name = "date_changement")
     private LocalDateTime dateChangement;
 
     public DemandeStatus() {
         this.dateChangement = LocalDateTime.now();
     }
 
-    // Getters et Setters
     public Integer getIdDemandeStatus() { return idDemandeStatus; }
     public void setIdDemandeStatus(Integer idDemandeStatus) { this.idDemandeStatus = idDemandeStatus; }
     public Demande getDemande() { return demande; }

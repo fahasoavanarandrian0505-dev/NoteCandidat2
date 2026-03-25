@@ -16,11 +16,7 @@ public class ClientService {
     private ClientRepository clientRepository;
     
     public Client createClient(Client client) {
-        try {
-            return clientRepository.save(client);
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la création du client: " + e.getMessage());
-        }
+        return clientRepository.save(client);
     }
     
     public List<Client> getAllClients() {
@@ -33,22 +29,13 @@ public class ClientService {
     
     public Client updateClient(Integer id, Client clientDetails) {
         Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Client non trouvé avec l'id: " + id));
+            .orElseThrow(() -> new RuntimeException("Client non trouvé"));
         client.setNom(clientDetails.getNom());
         client.setEmail(clientDetails.getEmail());
         return clientRepository.save(client);
     }
     
-    @Transactional
     public void deleteClient(Integer id) {
-        try {
-            Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client non trouvé avec l'id: " + id));
-            
-            clientRepository.delete(client);
-            
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la suppression du client: " + e.getMessage());
-        }
+        clientRepository.deleteById(id);
     }
 }

@@ -20,7 +20,6 @@ public class Status {
 
     public Status() {}
 
-    // Getters et Setters
     public Integer getIdStatus() { return idStatus; }
     public void setIdStatus(Integer idStatus) { this.idStatus = idStatus; }
     public String getLibelle() { return libelle; }

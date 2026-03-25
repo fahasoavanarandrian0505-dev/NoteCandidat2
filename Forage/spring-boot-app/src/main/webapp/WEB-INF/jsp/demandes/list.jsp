@@ -74,18 +74,9 @@
             </thead>
             <tbody>
                 <c:forEach items="${demandes}" var="demande">
-                    <tr>
+                     <tr>
                         <td>${demande.idDemande}</td>
-                        <td>
-                            <c:choose>
-                                <c:when test="${not empty demande.clientNom}">
-                                    ${demande.clientNom}
-                                </c:when>
-                                <c:otherwise>
-                                    Client inconnu
-                                </c:otherwise>
-                            </c:choose>
-                        </td>
+                        <td>${demande.clientNom}</td>
                         <td>${demande.lieu != null ? demande.lieu : '-'}</td>
                         <td>${demande.district != null ? demande.district : '-'}</td>
                         <td>${demande.dateDemande != null ? demande.dateDemande : '-'}</td>
