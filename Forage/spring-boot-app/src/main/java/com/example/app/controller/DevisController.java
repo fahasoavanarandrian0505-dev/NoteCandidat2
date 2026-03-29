@@ -43,7 +43,6 @@ public class DevisController {
         Devis devis = new Devis();
         devis.setDateDevis(LocalDate.now());
         devis.setEstAccepte(false);
-        devis.setMontantTotal(request.getMontantTotal());
         
         devisService.createDevisWithDetails(devis, request.getDemandeId(), 
                                               request.getTypeDevisId(), 

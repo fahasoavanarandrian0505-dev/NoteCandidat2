@@ -64,9 +64,9 @@
     </c:if>
     
     <c:if test="${not empty devis}">
-         <table>
+        <table>
             <thead>
-                 <tr>
+                <tr>
                     <th>ID</th>
                     <th>Demande</th>
                     <th>Client</th>
@@ -75,8 +75,7 @@
                     <th>Montant</th>
                     <th>Statut</th>
                     <th>Actions</th>
-                </tr>
-            </thead>
+                </thead>
             <tbody>
                 <c:forEach items="${devis}" var="d">
                     <tr>
@@ -86,7 +85,8 @@
                         <td>${d.typeDevis.libelle}</td>
                         <td>${d.dateDevis}</td>
                         <td>
-                            <fmt:formatNumber value="${d.montantTotal}" type="number" minFractionDigits="0" maxFractionDigits="0"/> Ar
+                            <c:set var="montant" value="${d.calculerMontantTotal()}" />
+                            <fmt:formatNumber value="${montant}" type="number" minFractionDigits="0" maxFractionDigits="0"/> Ar
                         </td>
                         <td>
                             <c:if test="${d.estAccepte}">

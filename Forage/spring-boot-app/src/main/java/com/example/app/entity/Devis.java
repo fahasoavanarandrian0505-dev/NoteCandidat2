@@ -10,7 +10,8 @@ import java.util.List;
 @Table(name = "devis")
 public class Devis {
     
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_devis")
     private Integer idDevis;
     
@@ -22,8 +23,10 @@ public class Devis {
     @JoinColumn(name = "id_typedevis", nullable = false)
     private TypeDevis typeDevis;
     
+    @Column(name = "date_devis")
     private LocalDate dateDevis;
-    private BigDecimal montantTotal;
+    
+    @Column(name = "est_accepte")
     private Boolean estAccepte = false;
     
     @OneToMany(mappedBy = "devis", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -31,6 +34,7 @@ public class Devis {
     
     public Devis() {}
     
+    // Getters et Setters
     public Integer getIdDevis() { return idDevis; }
     public void setIdDevis(Integer idDevis) { this.idDevis = idDevis; }
     public Demande getDemande() { return demande; }
@@ -39,40 +43,19 @@ public class Devis {
     public void setTypeDevis(TypeDevis typeDevis) { this.typeDevis = typeDevis; }
     public LocalDate getDateDevis() { return dateDevis; }
     public void setDateDevis(LocalDate dateDevis) { this.dateDevis = dateDevis; }
-    public BigDecimal getMontantTotal() { return montantTotal; }
-    public void setMontantTotal(BigDecimal montantTotal) { this.montantTotal = montantTotal; }
     public Boolean getEstAccepte() { return estAccepte; }
     public void setEstAccepte(Boolean estAccepte) { this.estAccepte = estAccepte; }
     public List<DetailsDevis> getDetailsDevis() { return detailsDevis; }
     public void setDetailsDevis(List<DetailsDevis> detailsDevis) { this.detailsDevis = detailsDevis; }
     
-    public void addDetailDevis(DetailsDevis detail) {
-        detailsDevis.add(detail);
-        detail.setDevis(this);
-        recalculerMontantTotal();
-    }
-    
-    public void removeDetailDevis(DetailsDevis detail) {
-        detailsDevis.remove(detail);
-        detail.setDevis(null);
-        recalculerMontantTotal();
-    }
-    
     public BigDecimal calculerMontantTotal() {
+        if (detailsDevis == null || detailsDevis.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
         return detailsDevis.stream()
             .map(DetailsDevis::getSousTotal)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-    
-    public void recalculerMontantTotal() {
-    if (detailsDevis != null && !detailsDevis.isEmpty()) {
-        this.montantTotal = detailsDevis.stream()
-            .map(DetailsDevis::getSousTotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-    } else {
-        this.montantTotal = BigDecimal.ZERO;
-    }
-}
     
     public void accepter() { this.estAccepte = true; }
     public void refuser() { this.estAccepte = false; }

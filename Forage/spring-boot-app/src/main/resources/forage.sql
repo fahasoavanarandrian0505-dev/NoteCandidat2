@@ -31,7 +31,6 @@ CREATE TABLE devis (
     id_demande INT NOT NULL,
     id_typedevis INT NOT NULL,
     date_devis DATE,
-    montant_total DECIMAL(15, 2),
     est_accepte BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (id_demande) REFERENCES demande(id_demande) ON DELETE CASCADE,
     FOREIGN KEY (id_typedevis) REFERENCES typedevis(id_typedevis)

@@ -49,6 +49,21 @@
             font-size: 14px;
             box-sizing: border-box;
         }
+        .info-client {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #28a745;
+        }
+        .info-client h3 {
+            margin: 0 0 10px 0;
+            color: #28a745;
+        }
+        .info-client p {
+            margin: 5px 0;
+            color: #333;
+        }
         .details-table {
             width: 100%;
             border-collapse: collapse;
@@ -122,7 +137,47 @@
         }
     </style>
     <script>
+        // Stocker les informations des demandes avec leurs clients
+        var demandesData = [];
+        
+        <c:forEach items="${demandes}" var="demande">
+        demandesData.push({
+            id: ${demande.idDemande},
+            clientNom: "${demande.client.nom}",
+            clientEmail: "${demande.client.email != null ? demande.client.email : ''}",
+            lieu: "${demande.lieu != null ? demande.lieu : ''}",
+            district: "${demande.district != null ? demande.district : ''}",
+            dateDemande: "${demande.dateDemande}"
+        });
+        </c:forEach>
+        
         var ligneIndex = 0;
+        
+        function afficherInfoClient() {
+            var demandeId = document.getElementById('demandeId').value;
+            var infoDiv = document.getElementById('infoClient');
+            
+            if (demandeId) {
+                var demande = demandesData.find(d => d.id == demandeId);
+                
+                if (demande) {
+                    var html = '<h3>📋 Informations du client</h3>';
+                    html += '<p><strong>Nom :</strong> ' + demande.clientNom + '</p>';
+                    if (demande.clientEmail) {
+                        html += '<p><strong>Email :</strong> ' + demande.clientEmail + '</p>';
+                    }
+                    html += '<p><strong>Lieu :</strong> ' + (demande.lieu || 'Non spécifié') + '</p>';
+                    html += '<p><strong>District :</strong> ' + (demande.district || 'Non spécifié') + '</p>';
+                    html += '<p><strong>Date demande :</strong> ' + (demande.dateDemande || 'Non spécifiée') + '</p>';
+                    infoDiv.innerHTML = html;
+                    infoDiv.style.display = 'block';
+                } else {
+                    infoDiv.style.display = 'none';
+                }
+            } else {
+                infoDiv.style.display = 'none';
+            }
+        }
         
         function ajouterLigne() {
             ligneIndex++;
@@ -141,7 +196,6 @@
             cell4.innerHTML = '<span class="ligne-total" id="totalLigne-' + ligneIndex + '">0.00</span>';
             cell5.innerHTML = '<button type="button" class="btn-remove-row" onclick="supprimerLigne(this)">Supprimer</button>';
             
-            // Ajouter un champ caché pour l'index
             var hiddenIndex = document.createElement("input");
             hiddenIndex.type = "hidden";
             hiddenIndex.name = "details[" + ligneIndex + "].index";
@@ -169,27 +223,13 @@
             calculerTotalGeneral();
         }
         
-                function calculerTotalGeneral() {
+        function calculerTotalGeneral() {
             var totals = document.querySelectorAll('.ligne-total');
             var totalGeneral = 0;
             for (var i = 0; i < totals.length; i++) {
                 totalGeneral += parseFloat(totals[i].innerHTML) || 0;
             }
             document.getElementById('totalGeneral').innerHTML = totalGeneral.toFixed(2) + ' Ar';
-            document.getElementById('montantTotalInput').value = totalGeneral.toFixed(2);
-            
-            // Debug: Afficher dans la console
-            console.log("Total calculé: " + totalGeneral.toFixed(2));
-        }
-                
-        function verifierDemande() {
-            var demandeId = document.getElementById('demandeId').value;
-            if (demandeId) {
-                document.getElementById('infoMessage').style.display = 'block';
-                setTimeout(function() {
-                    document.getElementById('infoMessage').style.display = 'none';
-                }, 3000);
-            }
         }
         
         function ajouterPremiereLigne() {
@@ -198,7 +238,10 @@
             }
         }
         
-        window.onload = ajouterPremiereLigne;
+        window.onload = function() {
+            ajouterPremiereLigne();
+            document.getElementById('infoClient').style.display = 'none';
+        };
     </script>
 </head>
 <body>
@@ -216,15 +259,11 @@
         <div class="content">
             <h2>Ajouter un Devis</h2>
             
-            <div id="infoMessage" class="info-message" style="display: none; background: #d1ecf1; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
-                ✅ Demande sélectionnée
-            </div>
-            
             <form action="/devis/add" method="post">
                 <!-- Référence Demande -->
                 <div class="form-group">
                     <label for="demandeId">Référence Demande *</label>
-                    <select id="demandeId" name="demandeId" required onchange="verifierDemande()">
+                    <select id="demandeId" name="demandeId" required onchange="afficherInfoClient()">
                         <option value="">Sélectionner une demande</option>
                         <c:forEach items="${demandes}" var="demande">
                             <option value="${demande.idDemande}">
@@ -232,6 +271,10 @@
                             </option>
                         </c:forEach>
                     </select>
+                </div>
+                
+                <!-- Affichage des informations du client -->
+                <div id="infoClient" class="info-client" style="display: none;">
                 </div>
                 
                 <!-- Type de devis -->
@@ -255,16 +298,12 @@
                             <th>Quantité</th>
                             <th>Sous-Total (Ar)</th>
                             <th>Action</th>
-                        </tr>
-                    </thead>
+                        </thead>
                     <tbody>
                     </tbody>
-                </table>
+                 </table>
                 
                 <button type="button" class="btn-add-row" onclick="ajouterLigne()">+ Ajouter une ligne</button>
-                
-                <!-- Montant total caché -->
-                <input type="hidden" id="montantTotalInput" name="montantTotal" value="0">
                 
                 <!-- Affichage du total général -->
                 <div class="total-container">

@@ -49,9 +49,9 @@ public class DevisService {
             devis.setDateDevis(LocalDate.now());
         }
         
-        Devis savedDevis = devisRepository.save(devis);
+
         
-        BigDecimal totalGeneral = BigDecimal.ZERO;
+        Devis savedDevis = devisRepository.save(devis);
         
         if (detailsDTO != null) {
             for (DevisRequestDTO.DetailDTO detailDTO : detailsDTO) {
@@ -62,16 +62,9 @@ public class DevisService {
                     detail.setPrixUnitaire(detailDTO.getPrixUnitaire());
                     detail.setQuantite(detailDTO.getQuantite());
                     detailsDevisRepository.save(detail);
-                    
-                    BigDecimal sousTotal = detailDTO.getPrixUnitaire()
-                        .multiply(BigDecimal.valueOf(detailDTO.getQuantite()));
-                    totalGeneral = totalGeneral.add(sousTotal);
                 }
             }
         }
-        
-        savedDevis.setMontantTotal(totalGeneral);
-        devisRepository.save(savedDevis);
         
         demandeService.ajouterStatut(demandeId, "Devis créé");
         
