@@ -4,7 +4,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Nouveau Devis</title>
+    <title>Modifier Devis #${devis.idDevis}</title>
     <style>
         body { font-family: Arial; margin: 20px; background: white; }
         .container { max-width: 1000px; margin: 0 auto; }
@@ -102,7 +102,7 @@
         }
     </style>
     <script>
-        let ligneIndex = 0;
+        let ligneIndex = ${details.size()};
         let demandesData = [];
         
         <c:forEach items="${demandes}" var="demande">
@@ -176,9 +176,32 @@
             document.getElementById('totalGeneral').innerHTML = totalGeneral.toFixed(0) + ' Ar';
         }
         
+        function chargerDetailsExistants() {
+            <c:forEach items="${details}" var="detail" varStatus="status">
+                let table = document.getElementById("detailsTable").getElementsByTagName('tbody')[0];
+                let newRow = table.insertRow();
+                let prix = ${detail.prixUnitaire};
+                let qte = ${detail.quantite};
+                newRow.innerHTML = `
+                    <td><input type="text" name="libelle" value="${detail.libelle}" required></td>
+                    <td><input type="number" name="prixUnitaire" step="0.01" value="\${prix}" required onblur="appliquerRemise(this)" onchange="calculerTotalLigne(this)"></td>
+                    <td><input type="number" name="quantite" value="\${qte}" required onchange="calculerTotalLigne(this)"></td>
+                    <td><span class="ligne-total">\${prix * qte}</span></td>
+                    <td><button type="button" class="btn btn-remove" onclick="supprimerLigne(this)">Supprimer</button></td>
+                `;
+                // Appliquer la classe CSS si le prix a déjà une remise
+                if (${detail.prixUnitaire} >= 1000000) {
+                    newRow.cells[1].querySelector('input').classList.add('prix-remise');
+                }
+            </c:forEach>
+            calculerTotalGeneral();
+        }
+        
         window.onload = function() {
-            ajouterLigne();
-            document.getElementById('infoClient').style.display = 'none';
+            chargerDetailsExistants();
+            document.getElementById('demandeId').value = ${devis.demande.idDemande};
+            document.getElementById('typeDevisId').value = ${devis.typeDevis.idTypeDevis};
+            afficherInfoClient();
         };
     </script>
 </head>
@@ -197,9 +220,11 @@
 
     <div class="container">
         <div class="content">
-            <h2>➕ Nouveau Devis</h2>
+            <h2>✏️ Modifier Devis #${devis.idDevis}</h2>
             
-            <form action="/devis/add" method="post">
+            <form action="/devis/update" method="post">
+                <input type="hidden" name="id" value="${devis.idDevis}">
+                
                 <div class="form-group">
                     <label for="demandeId">Demande *</label>
                     <select id="demandeId" name="demandeId" required onchange="afficherInfoClient()">
@@ -221,8 +246,7 @@
                         </c:forEach>
                     </select>
                 </div>
-                
-                
+                                
                 <label>Détails du devis *</label>
                 <table id="detailsTable">
                     <thead><tr><th>Libellé</th><th>Prix unitaire (Ar)</th><th>Quantité</th><th>Sous-total (Ar)</th><th>Action</th></tr></thead>
@@ -237,7 +261,7 @@
                 </div>
                 
                 <div style="margin-top: 20px;">
-                    <button type="submit" class="btn btn-submit"> Enregistrer</button>
+                    <button type="submit" class="btn btn-submit"> Mettre à jour</button>
                     <a href="/devis" class="btn btn-back"> Annuler</a>
                 </div>
             </form>

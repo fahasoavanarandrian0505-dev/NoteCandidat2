@@ -14,6 +14,7 @@
         .btn-add { background: #28a745; color: white; }
         .btn-edit { background: #007bff; color: white; }
         .btn-delete { background: #dc3545; color: white; }
+        .btn-details { background: #17a2b8; color: white; }
         .btn-back { background: #6c757d; color: white; padding: 8px 15px; text-decoration: none; display: inline-block; margin-top: 20px; border-radius: 3px; }
         .navbar {
             background: #f8f9fa;
@@ -34,6 +35,16 @@
             border-radius: 3px;
         }
         .nav-links a:hover { background-color: #e9ecef; }
+        .statut-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .statut-cree { background: #6c757d; color: white; }
+        .statut-valide { background: #28a745; color: white; }
+        .statut-rejeter { background: #dc3545; color: white; }
         @media (max-width: 768px) {
             .navbar { flex-direction: column; text-align: center; }
             .nav-links a { margin: 5px; display: inline-block; }
@@ -48,6 +59,8 @@
             <a href="/">Accueil</a>
             <a href="/clients">Clients</a>
             <a href="/demandes">Demandes</a>
+            <a href="/status">Statuts</a>
+            <a href="/demande-statuts">Historiques Statuts</a>
             <a href="/devis">Devis</a>
         </div>
     </div>
@@ -61,7 +74,7 @@
     </c:if>
     
     <c:if test="${not empty demandes}">
-         <table>
+        <table>
             <thead>
                 <tr>
                     <th>ID</th>
@@ -69,21 +82,33 @@
                     <th>Lieu</th>
                     <th>District</th>
                     <th>Date</th>
+                    <th>Statut Actuel</th>
                     <th>Actions</th>
-                </tr>
-            </thead>
+                </thead>
             <tbody>
                 <c:forEach items="${demandes}" var="demande">
-                     <tr>
+                    <c:set var="dernierStatut" value="${demande.demandeStatuses.isEmpty() ? null : demande.demandeStatuses.get(demande.demandeStatuses.size() - 1)}" />
+                    <tr>
                         <td>${demande.idDemande}</td>
-                        <td>${demande.clientNom}</td>
+                        <td>${demande.client.nom}</td>
                         <td>${demande.lieu != null ? demande.lieu : '-'}</td>
                         <td>${demande.district != null ? demande.district : '-'}</td>
                         <td>${demande.dateDemande != null ? demande.dateDemande : '-'}</td>
                         <td>
+                            <c:if test="${dernierStatut != null}">
+                                <span class="statut-badge statut-${dernierStatut.status.libelle.replace('é', 'e').replace(' ', '-')}">
+                                    ${dernierStatut.status.libelle}
+                                </span>
+                            </c:if>
+                            <c:if test="${dernierStatut == null}">
+                                <span class="statut-badge statut-cree">Nouvelle</span>
+                            </c:if>
+                         </td>
+                        <td>
+                            <a href="/demandes/details/${demande.idDemande}" class="btn btn-details">Voir Détails</a>
                             <a href="/demandes/edit/${demande.idDemande}" class="btn btn-edit">Modifier</a>
                             <a href="/demandes/delete/${demande.idDemande}" class="btn btn-delete" onclick="return confirm('Supprimer cette demande ?')">Supprimer</a>
-                        </td>
+                         </td>
                     </tr>
                 </c:forEach>
             </tbody>

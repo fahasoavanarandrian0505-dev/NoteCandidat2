@@ -1,14 +1,17 @@
 package com.example.app.controller;
 
-import com.example.app.dto.DemandeDTO;
 import com.example.app.entity.Demande;
+import com.example.app.entity.Client;
+import com.example.app.entity.DemandeStatus;
+import com.example.app.entity.Status;
 import com.example.app.service.DemandeService;
 import com.example.app.service.ClientService;
+import com.example.app.service.DemandeStatutsService;
+import com.example.app.service.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -21,20 +24,49 @@ public class DemandeController {
     @Autowired
     private ClientService clientService;
     
+    @Autowired
+    private DemandeStatutsService demandeStatutsService;
+    
+    @Autowired
+    private StatusService statusService;
+    
     @GetMapping
     public String list(Model model) {
-        List<DemandeDTO> demandeDTOs = new ArrayList<>();
-        for (Demande demande : demandeService.getAllDemandes()) {
-            DemandeDTO dto = new DemandeDTO();
-            dto.setIdDemande(demande.getIdDemande());
-            dto.setClientNom(demande.getClient() != null ? demande.getClient().getNom() : "Client inconnu");
-            dto.setLieu(demande.getLieu());
-            dto.setDistrict(demande.getDistrict());
-            dto.setDateDemande(demande.getDateDemande());
-            demandeDTOs.add(dto);
-        }
-        model.addAttribute("demandes", demandeDTOs);
+        List<Demande> demandes = demandeService.getAllDemandes();
+        model.addAttribute("demandes", demandes);
         return "demandes/list";
+    }
+    
+    @GetMapping("/details/{id}")
+    public String showDetails(@PathVariable Integer id, Model model) {
+        Demande demande = demandeService.getDemandeById(id)
+            .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
+        List<DemandeStatus> historiqueStatuts = demandeStatutsService.getDemandeStatusByDemandeId(id);
+        DemandeStatus dernierStatut = historiqueStatuts.isEmpty() ? null : historiqueStatuts.get(historiqueStatuts.size() - 1);
+        
+        model.addAttribute("demande", demande);
+        model.addAttribute("historiqueStatuts", historiqueStatuts);
+        model.addAttribute("dernierStatut", dernierStatut);
+        return "demandes/details";
+    }
+    
+    @GetMapping("/change-statut/{id}")
+    public String showChangeStatutForm(@PathVariable Integer id, Model model) {
+        Demande demande = demandeService.getDemandeById(id)
+            .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
+        List<Status> allStatus = statusService.getAllStatus();
+        
+        model.addAttribute("demande", demande);
+        model.addAttribute("allStatus", allStatus);
+        return "demandes/change-statut";
+    }
+    
+    @PostMapping("/change-statut")
+    public String changeStatut(@RequestParam Integer demandeId, 
+                              @RequestParam Integer statusId, 
+                              @RequestParam String observation) {
+        demandeService.ajouterStatutAvecObservation(demandeId, statusId, observation);
+        return "redirect:/demandes/details/" + demandeId;
     }
     
     @GetMapping("/add")

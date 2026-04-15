@@ -62,6 +62,8 @@
             <a href="/">Accueil</a>
             <a href="/clients">Clients</a>
             <a href="/demandes">Demandes</a>
+            <a href="/status">Statuts</a>
+            <a href="/demande-statuts">Historiques Statuts</a>
             <a href="/devis">Devis</a>
         </div>
     </div>
@@ -83,6 +85,18 @@
             <div class="icon">💰</div>
             <h2>Devis</h2>
             <a href="/devis" class="btn">Gérer les devis</a>
+        </div>
+
+        <div class="card">
+            <div class="icon">📊</div>
+            <h2>Statuts</h2>
+            <a href="/status" class="btn">Gérer les statuts</a>
+        </div>
+
+        <div class="card">
+            <div class="icon">📈</div>
+            <h2>Historique</h2>
+            <a href="/demande-statuts" class="btn">Voir l'historique</a>
         </div>
     </div>
 </body>

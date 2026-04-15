@@ -46,7 +46,7 @@ CREATE TABLE details_devis (
     FOREIGN KEY (id_devis) REFERENCES devis(id_devis) ON DELETE CASCADE
 );
 
--- Table Status (avec vos 3 statuts seulement)
+-- Table Status 
 CREATE TABLE status (
     id_status INT PRIMARY KEY AUTO_INCREMENT,
     libelle VARCHAR(100)
@@ -58,20 +58,25 @@ CREATE TABLE demandestatus (
     id_demande INT NOT NULL,
     id_status INT NOT NULL,
     date_changement DATETIME DEFAULT CURRENT_TIMESTAMP,
+    observation TEXT,
     FOREIGN KEY (id_demande) REFERENCES demande(id_demande) ON DELETE CASCADE,
     FOREIGN KEY (id_status) REFERENCES status(id_status)
 );
+
+
+
+
 
 -- Données initiales
 INSERT INTO typedevis (libelle) VALUES 
 ('Forage'),
 ('Etude');
 
--- Insérer les 3 statuts SEULEMENT
+-- Insérer les nouveaux statuts
 INSERT INTO status (libelle) VALUES 
-('Devis créé'),
-('Devis accepté'),
-('Devis refusé');
-
-
-
+('créé'),
+('non valide'),
+('rejeter'),
+('valide'),
+('devis etude créé'),
+('devis forage créé');

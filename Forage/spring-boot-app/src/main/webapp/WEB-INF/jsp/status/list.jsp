@@ -4,7 +4,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Liste des Clients</title>
+    <title>Liste des Statuts</title>
     <style>
         body { font-family: Arial; margin: 20px; background: white; }
         table { border-collapse: collapse; width: 100%; margin-top: 20px; }
@@ -54,33 +54,31 @@
         </div>
     </div>
 
-    <h2>Liste des Clients</h2>
+    <h2>Liste des Statuts</h2>
     
-    <a href="/clients/add" class="btn btn-add">+ Nouveau Client</a>
+    <a href="/status/add" class="btn btn-add">+ Nouveau Statut</a>
     
-    <c:if test="${empty clients}">
-        <p>Aucun client trouvé.</p>
+    <c:if test="${empty statusList}">
+        <p>Aucun statut trouvé.</p>
     </c:if>
     
-    <c:if test="${not empty clients}">
-        <table>
+    <c:if test="${not empty statusList}">
+         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Nom</th>
-                    <th>Email</th>
+                    <th>Libellé</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <c:forEach items="${clients}" var="client">
-                    <tr>
-                        <td>${client.idClient}</td>
-                        <td>${client.nom}</td>
-                        <td>${client.email != null ? client.email : '-'}</td>
+                <c:forEach items="${statusList}" var="status">
+                     <tr>
+                        <td>${status.idStatus}</td>
+                        <td>${status.libelle}</td>
                         <td>
-                            <a href="/clients/edit/${client.idClient}" class="btn btn-edit">Modifier</a>
-                            <a href="/clients/delete/${client.idClient}" class="btn btn-delete" onclick="return confirm('Supprimer ce client ?')">Supprimer</a>
+                            <a href="/status/edit/${status.idStatus}" class="btn btn-edit">Modifier</a>
+                            <a href="/status/delete/${status.idStatus}" class="btn btn-delete" onclick="return confirm('Supprimer ce statut ?')">Supprimer</a>
                         </td>
                     </tr>
                 </c:forEach>

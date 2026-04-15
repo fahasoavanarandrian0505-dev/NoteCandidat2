@@ -4,7 +4,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Liste des Clients</title>
+    <title>Historique des Statuts des Demandes</title>
     <style>
         body { font-family: Arial; margin: 20px; background: white; }
         table { border-collapse: collapse; width: 100%; margin-top: 20px; }
@@ -48,40 +48,41 @@
             <a href="/">Accueil</a>
             <a href="/clients">Clients</a>
             <a href="/demandes">Demandes</a>
-            <a href="/status">Statuts</a>
             <a href="/demande-statuts">Historiques Statuts</a>
             <a href="/devis">Devis</a>
         </div>
     </div>
 
-    <h2>Liste des Clients</h2>
+    <h2>Historique des Statuts des Demandes</h2>
     
-    <a href="/clients/add" class="btn btn-add">+ Nouveau Client</a>
     
-    <c:if test="${empty clients}">
-        <p>Aucun client trouvé.</p>
+    <c:if test="${empty demandeStatusList}">
+        <p>Aucun historique de statut trouvé.</p>
     </c:if>
     
-    <c:if test="${not empty clients}">
-        <table>
+    <c:if test="${not empty demandeStatusList}">
+         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Actions</th>
+                    <th>ID Statut</th>
+                    <th>ID Demande</th>
+                    <th>Client</th>
+                    <th>Lieu</th>
+                    <th>Statut</th>
+                    <th>Date de changement</th>
+                    <th>Observations</th>
                 </tr>
             </thead>
             <tbody>
-                <c:forEach items="${clients}" var="client">
-                    <tr>
-                        <td>${client.idClient}</td>
-                        <td>${client.nom}</td>
-                        <td>${client.email != null ? client.email : '-'}</td>
-                        <td>
-                            <a href="/clients/edit/${client.idClient}" class="btn btn-edit">Modifier</a>
-                            <a href="/clients/delete/${client.idClient}" class="btn btn-delete" onclick="return confirm('Supprimer ce client ?')">Supprimer</a>
-                        </td>
+                <c:forEach items="${demandeStatusList}" var="dS">
+                     <tr>
+                        <td>${dS.idDemandeStatus}</td>
+                        <td>${dS.demande.idDemande}</td>
+                        <td>${dS.demande.client.nom}</td>
+                        <td>${dS.demande.lieu}</td>
+                        <td>${dS.status.libelle}</td>
+                        <td>${dS.dateChangement}</td>
+                        <td>${dS.observation}</td>
                     </tr>
                 </c:forEach>
             </tbody>
@@ -89,6 +90,6 @@
     </c:if>
     
     <br>
-    <a href="/" class="btn-back">Retour à l'accueil</a>
+    <a href="/demande-statuts" class="btn-back">Retour à l'accueil</a>
 </body>
 </html>

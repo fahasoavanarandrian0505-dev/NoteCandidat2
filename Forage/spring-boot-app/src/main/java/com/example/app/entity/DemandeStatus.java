@@ -25,6 +25,12 @@ public class DemandeStatus {
         this.dateChangement = LocalDateTime.now();
     }
 
+    @Column(name = "observation")
+    private String observation;
+
+
+
+
     public Integer getIdDemandeStatus() { return idDemandeStatus; }
     public void setIdDemandeStatus(Integer idDemandeStatus) { this.idDemandeStatus = idDemandeStatus; }
     public Demande getDemande() { return demande; }
@@ -33,4 +39,6 @@ public class DemandeStatus {
     public void setStatus(Status status) { this.status = status; }
     public LocalDateTime getDateChangement() { return dateChangement; }
     public void setDateChangement(LocalDateTime dateChangement) { this.dateChangement = dateChangement; }
+    public String getObservation() { return observation; }
+    public void setObservation(String observation) { this.observation = observation; }
 }

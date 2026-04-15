@@ -51,6 +51,8 @@
             <a href="/">Accueil</a>
             <a href="/clients">Clients</a>
             <a href="/demandes">Demandes</a>
+            <a href="/status">Statuts</a>
+            <a href="/demande-statuts">Historiques Statuts</a>
             <a href="/devis">Devis</a>
         </div>
     </div>
@@ -58,6 +60,7 @@
     <h2>Liste des Devis</h2>
     
     <a href="/devis/add" class="btn btn-add">+ Nouveau Devis</a>
+
     
     <c:if test="${empty devis}">
         <p>Aucun devis trouvé.</p>
@@ -73,9 +76,10 @@
                     <th>Type</th>
                     <th>Date</th>
                     <th>Montant</th>
-                    <th>Statut</th>
+                    <!-- <th>Statut</th> -->
                     <th>Actions</th>
                 </thead>
+
             <tbody>
                 <c:forEach items="${devis}" var="d">
                     <tr>
@@ -88,28 +92,31 @@
                             <c:set var="montant" value="${d.calculerMontantTotal()}" />
                             <fmt:formatNumber value="${montant}" type="number" minFractionDigits="0" maxFractionDigits="0"/> Ar
                         </td>
-                        <td>
+                        <!-- <td>
                             <c:if test="${d.estAccepte}">
                                 <span class="accepte">Accepté</span>
                             </c:if>
                             <c:if test="${not d.estAccepte}">
                                 <span class="non-accepte">En attente</span>
                             </c:if>
-                        </td>
+                        </td> -->
                         <td>
-                            <c:if test="${not d.estAccepte}">
+                            <!-- <c:if test="${not d.estAccepte}">
                                 <a href="/devis/accept/${d.idDevis}" class="btn-edit" onclick="return confirm('Accepter ce devis ?')">Accepter</a>
                                 <a href="/devis/refuse/${d.idDevis}" class="btn-delete" onclick="return confirm('Refuser ce devis ?')">Refuser</a>
-                            </c:if>
-                            <a href="/devis/delete/${d.idDevis}" class="btn-delete" onclick="return confirm('Supprimer ce devis ?')">Supprimer</a>
+                            </c:if> -->
+                            <a href="/devis/edit/${d.idDevis}" class="btn btn-edit">Modifier</a>
+                            <a href="/devis/delete/${d.idDevis}" class="btn btn-delete" onclick="return confirm('Supprimer ce devis ?')">Supprimer</a>
                         </td>
                     </tr>
                 </c:forEach>
             </tbody>
         </table>
     </c:if>
-    
     <br>
+    
+    <h2>Somme Globale des devis : ${totalGlobal} Ar</h2>
+
     <a href="/" class="btn-back">Retour à l'accueil</a>
 </body>
 </html>

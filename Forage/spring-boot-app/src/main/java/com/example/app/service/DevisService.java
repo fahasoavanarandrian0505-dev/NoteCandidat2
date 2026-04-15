@@ -1,14 +1,7 @@
 package com.example.app.service;
 
-import com.example.app.dto.DevisRequestDTO;
-import com.example.app.entity.Devis;
-import com.example.app.entity.Demande;
-import com.example.app.entity.TypeDevis;
-import com.example.app.entity.DetailsDevis;
-import com.example.app.repository.DevisRepository;
-import com.example.app.repository.DemandeRepository;
-import com.example.app.repository.TypeDevisRepository;
-import com.example.app.repository.DetailsDevisRepository;
+import com.example.app.entity.*;
+import com.example.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,55 +14,39 @@ import java.util.Optional;
 @Transactional
 public class DevisService {
     
-    @Autowired
-    private DevisRepository devisRepository;
+    @Autowired private DevisRepository devisRepository;
+    @Autowired private DemandeRepository demandeRepository;
+    @Autowired private TypeDevisRepository typeDevisRepository;
+    @Autowired private DetailsDevisRepository detailsDevisRepository;
+    @Autowired private DemandeService demandeService;
     
-    @Autowired
-    private DemandeRepository demandeRepository;
+    private static final BigDecimal SEUIL_REMISE = new BigDecimal("1000000");
+    private static final BigDecimal TAUX_REMISE = new BigDecimal("0.9"); 
     
-    @Autowired
-    private TypeDevisRepository typeDevisRepository;
     
-    @Autowired
-    private DetailsDevisRepository detailsDevisRepository;
-    
-    @Autowired
-    private DemandeService demandeService;
-    
-    public Devis createDevisWithDetails(Devis devis, Integer demandeId, Integer typeDevisId, 
-                                         List<DevisRequestDTO.DetailDTO> detailsDTO) {
-        Demande demande = demandeRepository.findById(demandeId)
-            .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
-        TypeDevis typeDevis = typeDevisRepository.findById(typeDevisId)
-            .orElseThrow(() -> new RuntimeException("Type de devis non trouvé"));
+    public Devis createDevisWithDetails(Devis devis, Integer demandeId, Integer typeDevisId, List<DetailsDevis> details) {
+        devis.setDemande(demandeRepository.findById(demandeId)
+            .orElseThrow(() -> new RuntimeException("Demande non trouvée")));
+        devis.setTypeDevis(typeDevisRepository.findById(typeDevisId)
+            .orElseThrow(() -> new RuntimeException("Type de devis non trouvé")));
+        devis.setDateDevis(LocalDate.now());
+        devis.setEstAccepte(false);
         
-        devis.setDemande(demande);
-        devis.setTypeDevis(typeDevis);
-        if (devis.getDateDevis() == null) {
-            devis.setDateDevis(LocalDate.now());
+        Devis saved = devisRepository.save(devis);
+        
+        for (DetailsDevis detail : details) {
+            BigDecimal prixOriginal = detail.getPrixUnitaire();
+            BigDecimal prixFinal = appliquerRemise(prixOriginal);
+            detail.setPrixUnitaire(prixFinal);
+            detail.setDevis(saved);
+            detailsDevisRepository.save(detail);
         }
         
-
+        demandeService.changerStatutPourDevis(demandeId, devis.getTypeDevis().getLibelle());
         
-        Devis savedDevis = devisRepository.save(devis);
-        
-        if (detailsDTO != null) {
-            for (DevisRequestDTO.DetailDTO detailDTO : detailsDTO) {
-                if (detailDTO.getLibelle() != null && !detailDTO.getLibelle().isEmpty()) {
-                    DetailsDevis detail = new DetailsDevis();
-                    detail.setDevis(savedDevis);
-                    detail.setLibelle(detailDTO.getLibelle());
-                    detail.setPrixUnitaire(detailDTO.getPrixUnitaire());
-                    detail.setQuantite(detailDTO.getQuantite());
-                    detailsDevisRepository.save(detail);
-                }
-            }
-        }
-        
-        demandeService.ajouterStatut(demandeId, "Devis créé");
-        
-        return savedDevis;
+        return saved;
     }
+    
     
     public List<Devis> getAllDevis() {
         return devisRepository.findAll();
@@ -83,25 +60,68 @@ public class DevisService {
         return detailsDevisRepository.findByDevis_IdDevis(devisId);
     }
     
-    public Devis acceptDevis(Integer id) {
+    
+    public Devis updateDevis(Devis devis, Integer demandeId, Integer typeDevisId, List<DetailsDevis> details) {
+        // Mettre à jour les informations du devis
+        devis.setDemande(demandeRepository.findById(demandeId)
+            .orElseThrow(() -> new RuntimeException("Demande non trouvée")));
+        devis.setTypeDevis(typeDevisRepository.findById(typeDevisId)
+            .orElseThrow(() -> new RuntimeException("Type de devis non trouvé")));
+        devis.setDateDevis(LocalDate.now());
+        
+        Devis updated = devisRepository.save(devis);
+        
+        for (DetailsDevis detail : details) {
+            BigDecimal prixOriginal = detail.getPrixUnitaire();
+            BigDecimal prixFinal = appliquerRemise(prixOriginal);
+            detail.setPrixUnitaire(prixFinal);
+            detail.setDevis(updated);
+            detailsDevisRepository.save(detail);
+        }
+        
+        return updated;
+    }
+    
+    public void accepterDevis(Integer id) {
         Devis devis = devisRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Devis non trouvé"));
         devis.setEstAccepte(true);
-        Devis savedDevis = devisRepository.save(devis);
-        demandeService.ajouterStatut(devis.getDemande().getIdDemande(), "Devis accepté");
-        return savedDevis;
+        devisRepository.save(devis);
+        demandeService.ajouterStatut(devis.getDemande().getIdDemande(), "valide");
     }
     
-    public Devis refuseDevis(Integer id) {
+    public void refuserDevis(Integer id) {
         Devis devis = devisRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Devis non trouvé"));
         devis.setEstAccepte(false);
-        Devis savedDevis = devisRepository.save(devis);
-        demandeService.ajouterStatut(devis.getDemande().getIdDemande(), "Devis refusé");
-        return savedDevis;
+        devisRepository.save(devis);
+        demandeService.ajouterStatut(devis.getDemande().getIdDemande(), "rejeter");
+    }
+    
+    
+    public void deleteDetailsByDevisId(Integer devisId) {
+        List<DetailsDevis> details = detailsDevisRepository.findByDevis_IdDevis(devisId);
+        detailsDevisRepository.deleteAll(details);
     }
     
     public void deleteDevis(Integer id) {
+        deleteDetailsByDevisId(id);
         devisRepository.deleteById(id);
+    }
+    
+    
+    private BigDecimal appliquerRemise(BigDecimal prix) {
+        if (prix.compareTo(SEUIL_REMISE) >= 0) {
+            
+            return prix.multiply(TAUX_REMISE);
+        }
+        return prix;
+    }
+    
+    public BigDecimal getSommeGlobaleDevis() {
+        List<Devis> allDevis = getAllDevis();
+        return allDevis.stream()
+            .map(Devis::calculerMontantTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

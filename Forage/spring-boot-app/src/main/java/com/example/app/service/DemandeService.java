@@ -27,8 +27,9 @@ public class DemandeService {
         
         DemandeStatus ds = new DemandeStatus();
         ds.setDemande(saved);
-        ds.setStatus(statusRepository.findByLibelle("Devis créé").orElseThrow());
+        ds.setStatus(statusRepository.findByLibelle("créé").orElseThrow());
         ds.setDateChangement(LocalDateTime.now());
+        ds.setObservation("Demande créée automatiquement");
         demandeStatusRepository.save(ds);
         
         return saved;
@@ -47,7 +48,22 @@ public class DemandeService {
         ds.setDemande(demandeRepository.findById(demandeId).orElseThrow());
         ds.setStatus(statusRepository.findByLibelle(libelle).orElseThrow());
         ds.setDateChangement(LocalDateTime.now());
+        ds.setObservation("Changement de statut");
         demandeStatusRepository.save(ds);
+    }
+    
+    public void ajouterStatutAvecObservation(Integer demandeId, String libelle, String observation) {
+        DemandeStatus ds = new DemandeStatus();
+        ds.setDemande(demandeRepository.findById(demandeId).orElseThrow());
+        ds.setStatus(statusRepository.findByLibelle(libelle).orElseThrow());
+        ds.setDateChangement(LocalDateTime.now());
+        ds.setObservation(observation);
+        demandeStatusRepository.save(ds);
+    }
+    
+    public void changerStatutPourDevis(Integer demandeId, String typeDevis) {
+        String statutLibelle = typeDevis.equalsIgnoreCase("Etude") ? "devis etude créé" : "devis forage créé";
+        ajouterStatutAvecObservation(demandeId, statutLibelle, "Devis " + typeDevis + " créé");
     }
     
     public Demande updateDemandeWithClient(Integer id, Demande details, Integer clientId) {
@@ -62,4 +78,15 @@ public class DemandeService {
     public void deleteDemande(Integer id) {
         demandeRepository.deleteById(id);
     }
+
+    public void ajouterStatutAvecObservation(Integer demandeId, Integer statusId, String observation) {
+        DemandeStatus ds = new DemandeStatus();
+        ds.setDemande(demandeRepository.findById(demandeId).orElseThrow());
+        ds.setStatus(statusRepository.findById(statusId).orElseThrow());
+        ds.setDateChangement(LocalDateTime.now());
+        ds.setObservation(observation);
+        demandeStatusRepository.save(ds);
+    }
+
+
 }
