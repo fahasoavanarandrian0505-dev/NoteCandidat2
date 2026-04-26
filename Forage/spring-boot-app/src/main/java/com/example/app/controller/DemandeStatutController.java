@@ -30,5 +30,6 @@ public class DemandeStatutController {
         model.addAttribute("demandeStatusList", demandeStatus);
         model.addAttribute("demandeId", demandeId);
         return "demande-statuts/list";
+    
     }
 }

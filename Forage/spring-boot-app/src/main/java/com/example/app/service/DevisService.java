@@ -62,7 +62,6 @@ public class DevisService {
     
     
     public Devis updateDevis(Devis devis, Integer demandeId, Integer typeDevisId, List<DetailsDevis> details) {
-        // Mettre à jour les informations du devis
         devis.setDemande(demandeRepository.findById(demandeId)
             .orElseThrow(() -> new RuntimeException("Demande non trouvée")));
         devis.setTypeDevis(typeDevisRepository.findById(typeDevisId)
@@ -82,21 +81,21 @@ public class DevisService {
         return updated;
     }
     
-    public void accepterDevis(Integer id) {
-        Devis devis = devisRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Devis non trouvé"));
-        devis.setEstAccepte(true);
-        devisRepository.save(devis);
-        demandeService.ajouterStatut(devis.getDemande().getIdDemande(), "valide");
-    }
+    // public void accepterDevis(Integer id) {
+    //     Devis devis = devisRepository.findById(id)
+    //         .orElseThrow(() -> new RuntimeException("Devis non trouvé"));
+    //     devis.setEstAccepte(true);
+    //     devisRepository.save(devis);
+    //     demandeService.ajouterStatut(devis.getDemande().getIdDemande(), "valide");
+    // }
     
-    public void refuserDevis(Integer id) {
-        Devis devis = devisRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Devis non trouvé"));
-        devis.setEstAccepte(false);
-        devisRepository.save(devis);
-        demandeService.ajouterStatut(devis.getDemande().getIdDemande(), "rejeter");
-    }
+    // public void refuserDevis(Integer id) {
+    //     Devis devis = devisRepository.findById(id)
+    //         .orElseThrow(() -> new RuntimeException("Devis non trouvé"));
+    //     devis.setEstAccepte(false);
+    //     devisRepository.save(devis);
+    //     demandeService.ajouterStatut(devis.getDemande().getIdDemande(), "rejeter");
+    // }
     
     
     public void deleteDetailsByDevisId(Integer devisId) {

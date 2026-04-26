@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional; 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -19,21 +20,23 @@ public class DemandeService {
     @Autowired private DemandeStatusRepository demandeStatusRepository;
     @Autowired private StatusRepository statusRepository;
     
+    
     public Demande createDemande(Demande demande, Integer clientId) {
-        demande.setClient(clientRepository.findById(clientId).orElseThrow());
-        if (demande.getDateDemande() == null) demande.setDateDemande(LocalDate.now());
+        demande.setClient(clientRepository.findById(clientId)
+            .orElseThrow(() -> new RuntimeException("Client non trouvé")));
+        
+        if (demande.getDateDemande() == null) {
+            demande.setDateDemande(LocalDate.now());
+        }
         
         Demande saved = demandeRepository.save(demande);
         
-        DemandeStatus ds = new DemandeStatus();
-        ds.setDemande(saved);
-        ds.setStatus(statusRepository.findByLibelle("créé").orElseThrow());
-        ds.setDateChangement(LocalDateTime.now());
-        ds.setObservation("Demande créée automatiquement");
-        demandeStatusRepository.save(ds);
+        ajouterLigneHistorique(saved.getIdDemande(), "créé", "Demande créée");
         
         return saved;
     }
+    
+    // ==================== READ ====================
     
     public List<Demande> getAllDemandes() {
         return demandeRepository.findAll();
@@ -43,50 +46,86 @@ public class DemandeService {
         return demandeRepository.findById(id);
     }
     
-    public void ajouterStatut(Integer demandeId, String libelle) {
-        DemandeStatus ds = new DemandeStatus();
-        ds.setDemande(demandeRepository.findById(demandeId).orElseThrow());
-        ds.setStatus(statusRepository.findByLibelle(libelle).orElseThrow());
-        ds.setDateChangement(LocalDateTime.now());
-        ds.setObservation("Changement de statut");
-        demandeStatusRepository.save(ds);
+    // ==================== UPDATE ====================
+    
+    public Demande updateDemande(Integer id, Demande details, Integer clientId) {
+        Demande demande = demandeRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
+        
+        demande.setClient(clientRepository.findById(clientId)
+            .orElseThrow(() -> new RuntimeException("Client non trouvé")));
+        demande.setLieu(details.getLieu());
+        demande.setDistrict(details.getDistrict());
+        demande.setDateDemande(details.getDateDemande());
+        
+        Demande updated = demandeRepository.save(demande);
+        
+        List<DemandeStatus> historique = demandeStatusRepository.findByDemande_IdDemande(id);
+        if (!historique.isEmpty()) {
+            DemandeStatus dernierStatut = historique.get(historique.size() - 1);
+            dernierStatut.setDateChangement(LocalDateTime.now());
+            demandeStatusRepository.save(dernierStatut);
+        }
+        
+        return updated;
     }
     
-    public void ajouterStatutAvecObservation(Integer demandeId, String libelle, String observation) {
+    
+    private void ajouterLigneHistorique(Integer demandeId, String libelleStatut, String observation) {
+        Demande demande = demandeRepository.findById(demandeId)
+            .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
+        
+        Status status = statusRepository.findByLibelle(libelleStatut)
+            .orElseThrow(() -> new RuntimeException("Statut '" + libelleStatut + "' non trouvé"));
+        
         DemandeStatus ds = new DemandeStatus();
-        ds.setDemande(demandeRepository.findById(demandeId).orElseThrow());
-        ds.setStatus(statusRepository.findByLibelle(libelle).orElseThrow());
+        ds.setDemande(demande);
+        ds.setStatus(status);
         ds.setDateChangement(LocalDateTime.now());
         ds.setObservation(observation);
         demandeStatusRepository.save(ds);
     }
     
-    public void changerStatutPourDevis(Integer demandeId, String typeDevis) {
-        String statutLibelle = typeDevis.equalsIgnoreCase("Etude") ? "devis etude créé" : "devis forage créé";
-        ajouterStatutAvecObservation(demandeId, statutLibelle, "Devis " + typeDevis + " créé");
+    public void changerStatut(Integer demandeId, Integer statusId, String observation) {
+        Status status = statusRepository.findById(statusId)
+            .orElseThrow(() -> new RuntimeException("Statut non trouvé"));
+        
+        ajouterLigneHistorique(demandeId, status.getLibelle(), observation);
     }
     
-    public Demande updateDemandeWithClient(Integer id, Demande details, Integer clientId) {
-        Demande demande = demandeRepository.findById(id).orElseThrow();
-        demande.setClient(clientRepository.findById(clientId).orElseThrow());
-        demande.setLieu(details.getLieu());
-        demande.setDistrict(details.getDistrict());
-        demande.setDateDemande(details.getDateDemande());
-        return demandeRepository.save(demande);
+    public void changerStatutPourDevis(Integer demandeId, String typeDevis) {
+        String libelleStatut = typeDevis.equalsIgnoreCase("Etude") ? "devis etude créé" : "devis forage créé";
+        ajouterLigneHistorique(demandeId, libelleStatut, "Devis " + typeDevis + " créé");
     }
+
+public void updateLastStatutObservation(Integer demandeId, String observation) {
+    List<DemandeStatus> historique = demandeStatusRepository.findByDemande_IdDemande(demandeId);
+    if (!historique.isEmpty()) {
+        DemandeStatus dernierStatut = historique.get(historique.size() - 1);
+        dernierStatut.setObservation(observation);
+        demandeStatusRepository.save(dernierStatut);
+    }
+}
+    
     
     public void deleteDemande(Integer id) {
         demandeRepository.deleteById(id);
     }
 
-    public void ajouterStatutAvecObservation(Integer demandeId, Integer statusId, String observation) {
-        DemandeStatus ds = new DemandeStatus();
-        ds.setDemande(demandeRepository.findById(demandeId).orElseThrow());
-        ds.setStatus(statusRepository.findById(statusId).orElseThrow());
-        ds.setDateChangement(LocalDateTime.now());
-        ds.setObservation(observation);
-        demandeStatusRepository.save(ds);
+    public List<Demande> getDemandesByStatut(String libelleStatut) {
+    List<Demande> toutesDemandes = demandeRepository.findAll();
+    List<Demande> demandesFiltrees = new ArrayList<>();
+    
+    for (Demande demande : toutesDemandes) {
+        List<DemandeStatus> historique = demandeStatusRepository.findByDemande_IdDemande(demande.getIdDemande());
+        if (!historique.isEmpty()) {
+            DemandeStatus dernier = historique.get(historique.size() - 1);
+            if (dernier.getStatus().getLibelle().equals(libelleStatut)) {
+                demandesFiltrees.add(demande);
+            }
+        }
     }
-
-
+    
+    return demandesFiltrees;
+}
 }

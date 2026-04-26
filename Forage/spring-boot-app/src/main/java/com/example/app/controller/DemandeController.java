@@ -1,13 +1,7 @@
 package com.example.app.controller;
 
-import com.example.app.entity.Demande;
-import com.example.app.entity.Client;
-import com.example.app.entity.DemandeStatus;
-import com.example.app.entity.Status;
-import com.example.app.service.DemandeService;
-import com.example.app.service.ClientService;
-import com.example.app.service.DemandeStatutsService;
-import com.example.app.service.StatusService;
+import com.example.app.entity.*;
+import com.example.app.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,12 +24,23 @@ public class DemandeController {
     @Autowired
     private StatusService statusService;
     
+    
     @GetMapping
-    public String list(Model model) {
-        List<Demande> demandes = demandeService.getAllDemandes();
+    public String list(Model model, @RequestParam(required = false) String statut) {
+        List<Demande> demandes;
+        
+        if (statut != null && !statut.isEmpty()) {
+            // Filtrer les demandes par statut
+            demandes = demandeService.getDemandesByStatut(statut);
+            model.addAttribute("statutFiltre", statut);
+        } else {
+            demandes = demandeService.getAllDemandes();
+        }
+        
         model.addAttribute("demandes", demandes);
         return "demandes/list";
     }
+    
     
     @GetMapping("/details/{id}")
     public String showDetails(@PathVariable Integer id, Model model) {
@@ -49,6 +54,7 @@ public class DemandeController {
         model.addAttribute("dernierStatut", dernierStatut);
         return "demandes/details";
     }
+    
     
     @GetMapping("/change-statut/{id}")
     public String showChangeStatutForm(@PathVariable Integer id, Model model) {
@@ -65,9 +71,10 @@ public class DemandeController {
     public String changeStatut(@RequestParam Integer demandeId, 
                               @RequestParam Integer statusId, 
                               @RequestParam String observation) {
-        demandeService.ajouterStatutAvecObservation(demandeId, statusId, observation);
+        demandeService.changerStatut(demandeId, statusId, observation);
         return "redirect:/demandes/details/" + demandeId;
     }
+    
     
     @GetMapping("/add")
     public String showAddForm(Model model) {
@@ -82,19 +89,28 @@ public class DemandeController {
         return "redirect:/demandes";
     }
     
+    
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Integer id, Model model) {
-        model.addAttribute("demande", demandeService.getDemandeById(id)
-            .orElseThrow(() -> new RuntimeException("Demande non trouvée")));
+        Demande demande = demandeService.getDemandeById(id)
+            .orElseThrow(() -> new RuntimeException("Demande non trouvée"));
+        model.addAttribute("demande", demande);
         model.addAttribute("clients", clientService.getAllClients());
         return "demandes/edit";
     }
     
     @PostMapping("/update")
     public String update(@ModelAttribute Demande demande, @RequestParam Integer clientId) {
-        demandeService.updateDemandeWithClient(demande.getIdDemande(), demande, clientId);
+        demandeService.updateDemande(demande.getIdDemande(), demande, clientId);
         return "redirect:/demandes";
     }
+
+    @PostMapping("/update-observation")
+    public String updateObservation(@RequestParam Integer demandeId, @RequestParam String observation) {
+        demandeService.updateLastStatutObservation(demandeId, observation);
+        return "redirect:/demandes/details/" + demandeId;
+    }
+        
     
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id) {

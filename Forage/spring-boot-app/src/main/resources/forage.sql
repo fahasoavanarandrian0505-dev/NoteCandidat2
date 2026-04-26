@@ -65,8 +65,6 @@ CREATE TABLE demandestatus (
 
 
 
-
-
 -- Données initiales
 INSERT INTO typedevis (libelle) VALUES 
 ('Forage'),

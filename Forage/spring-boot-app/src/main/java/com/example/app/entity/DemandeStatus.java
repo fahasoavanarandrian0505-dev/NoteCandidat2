@@ -28,9 +28,7 @@ public class DemandeStatus {
     @Column(name = "observation")
     private String observation;
 
-
-
-
+    
     public Integer getIdDemandeStatus() { return idDemandeStatus; }
     public void setIdDemandeStatus(Integer idDemandeStatus) { this.idDemandeStatus = idDemandeStatus; }
     public Demande getDemande() { return demande; }

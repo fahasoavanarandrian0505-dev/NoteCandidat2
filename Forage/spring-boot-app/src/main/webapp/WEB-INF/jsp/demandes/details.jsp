@@ -4,100 +4,39 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Détails de la Demande #${demande.idDemande}</title>
+    <title>Details de la Demande #${demande.idDemande}</title>
     <style>
-        body { font-family: Arial; margin: 20px; background: #f4f4f4; }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
-        h3 { color: #555; margin-top: 20px; }
-        .info-section {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .info-row {
-            display: flex;
-            padding: 8px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .info-label {
-            font-weight: bold;
-            width: 150px;
-        }
-        .info-value {
-            flex: 1;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .btn {
-            padding: 8px 15px;
-            text-decoration: none;
-            margin: 5px;
-            display: inline-block;
-            border-radius: 3px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-success { background: #28a745; color: white; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #a5a4a4; min-height: 100vh; }
+        .navbar { background: #0d1b3e; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border-bottom: 1px solid #2c3e6d; }
+        .navbar h1 { color: white; margin: 0; font-size: 24px; }
+        .nav-links a { margin-left: 20px; text-decoration: none; color: #c8d6e5; padding: 8px 16px; border-radius: 5px; transition: background 0.3s; font-weight: 500; }
+        .nav-links a:hover { background: #2c3e6d; color: white; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .content { background: #0d1b3e; border-radius: 10px; padding: 25px; border: 1px solid #2c3e6d; }
+        h2, h3 { color: white; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #3498db; }
+        .info-section { background: #12234a; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .info-row { display: flex; padding: 8px 0; border-bottom: 1px solid #2c3e6d; }
+        .info-label { font-weight: bold; width: 150px; color: #c8d6e5; }
+        .info-value { flex: 1; color: white; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #2c3e6d; padding: 10px; text-align: left; color: #c8d6e5; }
+        th { background-color: #12234a; color: white; }
+        .btn { padding: 8px 15px; text-decoration: none; margin: 5px; display: inline-block; border-radius: 5px; border: none; cursor: pointer; font-size: 13px; }
+        .btn-primary { background: #3498db; color: white; }
         .btn-warning { background: #ffc107; color: #333; }
-        .btn-danger { background: #dc3545; color: white; }
         .btn-secondary { background: #6c757d; color: white; }
-        .btn-back { background: #6c757d; color: white; }
-        .statut-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 3px;
-            font-size: 14px;
-            font-weight: bold;
-        }
+        .statut-badge { display: inline-block; padding: 5px 12px; border-radius: 5px; font-size: 13px; font-weight: bold; }
         .statut-cree { background: #6c757d; color: white; }
         .statut-valide { background: #28a745; color: white; }
         .statut-rejeter { background: #dc3545; color: white; }
-        .statut-non-valide { background: #ffc107; color: #333; }
-        .statut-devis-etude-cree { background: #17a2b8; color: white; }
-        .statut-devis-forage-cree { background: #17a2b8; color: white; }
-        .navbar {
-            background: #f8f9fa;
-            padding: 15px 20px;
-            border-bottom: 2px solid #ddd;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .navbar h1 { color: #333; margin: 0; }
-        .nav-links a {
-            margin-left: 15px;
-            text-decoration: none;
-            color: #333;
-            padding: 5px 10px;
-            border-radius: 3px;
-        }
-        .nav-links a:hover { background-color: #e9ecef; }
+        .observation-edit { margin-left: 10px; padding: 3px 10px; font-size: 11px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
+        .modal-content { background: #0d1b3e; width: 500px; margin: 100px auto; padding: 25px; border-radius: 10px; border: 1px solid #2c3e6d; }
+        .modal-content h3 { color: white; margin-bottom: 15px; }
+        .modal-content textarea { width: 100%; padding: 10px; background: #12234a; border: 1px solid #2c3e6d; color: white; border-radius: 5px; min-height: 100px; }
         @media (max-width: 768px) {
-            .navbar { flex-direction: column; text-align: center; }
+            .navbar { flex-direction: column; text-align: center; gap: 10px; }
             .nav-links a { margin: 5px; display: inline-block; }
             .info-row { flex-direction: column; }
             .info-label { width: auto; margin-bottom: 5px; }
@@ -107,7 +46,7 @@
 </head>
 <body>
     <div class="navbar">
-        <h1>Gestion de Forage</h1>
+        <h1>Forage - ETU 3615</h1>
         <div class="nav-links">
             <a href="/">Accueil</a>
             <a href="/clients">Clients</a>
@@ -119,86 +58,72 @@
     </div>
 
     <div class="container">
-        <h2>Détails de la Demande #${demande.idDemande}</h2>
-        
-        <!-- Section Client -->
-        <div class="info-section">
-            <h3>Informations Client</h3>
-            <div class="info-row">
-                <div class="info-label">Nom du Client :</div>
-                <div class="info-value">${demande.client.nom}</div>
+        <div class="content">
+            <h2>Details de la Demande #${demande.idDemande}</h2>
+            
+            <div class="info-section">
+                <h3>Informations Client</h3>
+                <div class="info-row"><div class="info-label">Nom du Client :</div><div class="info-value">${demande.client.nom}</div></div>
+                <div class="info-row"><div class="info-label">Email :</div><div class="info-value">${demande.client.email != null ? demande.client.email : '-'}</div></div>
             </div>
-            <div class="info-row">
-                <div class="info-label">Email :</div>
-                <div class="info-value">${demande.client.email != null ? demande.client.email : '-'}</div>
-            </div>
-        </div>
-        
-        <!-- Section Demande -->
-        <div class="info-section">
-            <h3>Informations Demande</h3>
-            <div class="info-row">
-                <div class="info-label">Lieu :</div>
-                <div class="info-value">${demande.lieu != null ? demande.lieu : '-'}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">District :</div>
-                <div class="info-value">${demande.district != null ? demande.district : '-'}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Date de Demande :</div>
-                <div class="info-value">${demande.dateDemande != null ? demande.dateDemande : '-'}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Statut Actuel :</div>
-                <div class="info-value">
-                    <c:if test="${dernierStatut != null}">
-                        <span class="statut-badge">
-                            ${dernierStatut.status.libelle}
-                        </span>
-                    </c:if>
-                    <c:if test="${dernierStatut == null}">
-                        <span class="statut-badge statut-cree">Nouvelle Demande</span>
-                    </c:if>
+            
+            <div class="info-section">
+                <h3>Informations Demande</h3>
+                <div class="info-row"><div class="info-label">Lieu :</div><div class="info-value">${demande.lieu != null ? demande.lieu : '-'}</div></div>
+                <div class="info-row"><div class="info-label">District :</div><div class="info-value">${demande.district != null ? demande.district : '-'}</div></div>
+                <div class="info-row"><div class="info-label">Date de Demande :</div><div class="info-value">${demande.dateDemande != null ? demande.dateDemande : '-'}</div></div>
+                <div class="info-row"><div class="info-label">Statut Actuel :</div>
+                    <div class="info-value">
+                        <c:if test="${dernierStatut != null}"><span class="statut-badge">${dernierStatut.status.libelle}</span></c:if>
+                        <c:if test="${dernierStatut == null}"><span class="statut-badge statut-cree">Nouvelle Demande</span></c:if>
+                    </div>
+                </div>
+                <div class="info-row"><div class="info-label">Observation :</div>
+                    <div class="info-value">
+                        <span id="observationText">${dernierStatut != null ? (dernierStatut.observation != null ? dernierStatut.observation : '-') : '-'}</span>
+                        <button class="observation-edit" onclick="showEditObservation()">Modifier</button>
+                    </div>
                 </div>
             </div>
+            
+            <div style="margin: 20px 0;">
+                <a href="/demandes/edit/${demande.idDemande}" class="btn btn-primary">Modifier la Demande</a>
+                <a href="/demandes/change-statut/${demande.idDemande}" class="btn btn-warning">Changer le Statut</a>
+                <a href="/demandes" class="btn btn-secondary">← Retour à la liste</a>
+            </div>
+            
+            <h3>Historique des Statuts</h3>
+            <c:if test="${empty historiqueStatuts}"><p style="color: #c8d6e5;">Aucun historique de statut disponible.</p></c:if>
+            <c:if test="${not empty historiqueStatuts}">
+                <table>
+                    <thead><tr><th>Date de Changement</th><th>Statut</th><th>Observation</th></tr></thead>
+                    <tbody>
+                        <c:forEach items="${historiqueStatuts}" var="statut">
+                            <tr><td>${statut.dateChangement}</td><td>${statut.status.libelle}</td><td>${statut.observation != null ? statut.observation : '-'}</td></tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </c:if>
         </div>
-        
-        <!-- Bouton Modifier Statut -->
-        <div style="margin: 20px 0;">
-            <a href="/demandes/change-statut/${demande.idDemande}" class="btn btn-warning">✏️ Modifier le Statut</a>
-            <a href="/demandes" class="btn btn-secondary">← Retour à la liste</a>
-        </div>
-        
-        <!-- Section Historique des Statuts -->
-        <h3>Historique des Statuts</h3>
-        <c:if test="${empty historiqueStatuts}">
-            <p>Aucun historique de statut disponible.</p>
-        </c:if>
-        <c:if test="${not empty historiqueStatuts}">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date de Changement</th>
-                        <th>Statut</th>
-                        <th>Observation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach items="${historiqueStatuts}" var="statut">
-                        <tr>
-                            <td>${statut.dateChangement}</td>
-                            <td>
-                                <span class="statut-badge">
-                                    ${statut.status.libelle}
-                                </span>
-                            </td>
-                            <td>${statut.observation != null ? statut.observation : '-'}</td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
-        </c:if>
     </div>
+    
+    <div id="modalObservation" class="modal">
+        <div class="modal-content">
+            <h3>Modifier l'observation</h3>
+            <form action="/demandes/update-observation" method="post">
+                <input type="hidden" name="demandeId" value="${demande.idDemande}">
+                <textarea name="observation">${dernierStatut != null ? dernierStatut.observation : ''}</textarea>
+                <div style="margin-top: 15px;">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function showEditObservation() { document.getElementById('modalObservation').style.display = 'block'; }
+        function closeModal() { document.getElementById('modalObservation').style.display = 'none'; }
+    </script>
 </body>
 </html>

@@ -114,17 +114,17 @@ public class DevisController {
     }
     
     
-    @GetMapping("/accept/{id}")
-    public String accept(@PathVariable Integer id) {
-        devisService.accepterDevis(id);
-        return "redirect:/devis";
-    }
+    // @GetMapping("/accept/{id}")
+    // public String accept(@PathVariable Integer id) {
+    //     devisService.accepterDevis(id);
+    //     return "redirect:/devis";
+    // }
     
-    @GetMapping("/refuse/{id}")
-    public String refuse(@PathVariable Integer id) {
-        devisService.refuserDevis(id);
-        return "redirect:/devis";
-    }
+    // @GetMapping("/refuse/{id}")
+    // public String refuse(@PathVariable Integer id) {
+    //     devisService.refuserDevis(id);
+    //     return "redirect:/devis";
+    // }
     
     
     @GetMapping("/delete/{id}")
